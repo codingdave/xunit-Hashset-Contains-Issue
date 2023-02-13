@@ -1,15 +1,53 @@
 using Xunit;
 namespace sample.Test
 {
-    public class XUnitShouldBehaveIdenticalFor
+    public class XUnitShouldBehaveIdenticalToSdkFor
     {
-        private HashSet<ClassWithBrokenGetHashCode> _collection;
-        private ClassWithBrokenGetHashCode _item;
+        private HashSet<BrokenGetHashCode> _collection;
+        private BrokenGetHashCode _item;
 
-        public XUnitShouldBehaveIdenticalFor()
+        public XUnitShouldBehaveIdenticalToSdkFor()
         {
-            _collection = new HashSet<ClassWithBrokenGetHashCode> { new ClassWithBrokenGetHashCode("a") };
+            _collection = new HashSet<BrokenGetHashCode> { new BrokenGetHashCode("a") };
             _item = _collection.First();
+        }
+
+        [Fact]
+        public void AssertContainsIDictionary()
+        {
+            var collection = new Dictionary<BrokenGetHashCode, string>
+            {
+                { new BrokenGetHashCode("a"), "a" }
+            };
+            var item = collection.First();
+            Assert.Contains(item, collection);
+#pragma warning disable xUnit2017 // Do not use Contains() to check if a value exists in a collection
+            Assert.True(collection.Contains(item));
+#pragma warning restore xUnit2017 // Do not use Contains() to check if a value exists in a collection
+            // Since GetHashCode uses the mutable property this line will make Contains calls fail
+            item.Key.MutableProperty = "b";
+            Assert.DoesNotContain(item, collection);
+#pragma warning disable xUnit2017 // Do not use Contains() to check if a value exists in a collection
+            Assert.False(collection.Contains(item));
+#pragma warning restore xUnit2017 // Do not use Contains() to check if a value exists in a collection
+        }
+
+        [Fact]
+        public void AssertContainsISet()
+        {
+            var collection = new HashSet<BrokenGetHashCode> { new BrokenGetHashCode("a") };
+            var item = collection.First();
+            Assert.NotNull(item);
+            Assert.Contains(item, collection);
+#pragma warning disable xUnit2017 // Do not use Contains() to check if a value exists in a collection
+            Assert.True(collection.Contains(item));
+#pragma warning restore xUnit2017 // Do not use Contains() to check if a value exists in a collection
+            // Since GetHashCode uses the mutable property this line will make Contains calls fail
+            item.MutableProperty = "b";
+            Assert.DoesNotContain(item, collection);
+#pragma warning disable xUnit2017 // Do not use Contains() to check if a value exists in a collection
+            Assert.False(collection.Contains(item));
+#pragma warning restore xUnit2017 // Do not use Contains() to check if a value exists in a collection
         }
 
         [Fact]
@@ -19,20 +57,6 @@ namespace sample.Test
             Assert.Contains(_item, _collection);
             _item.MutableProperty = "b";
             Assert.Contains(_item, _collection);
-        }
-
-        [Fact]
-        public void HashSetContains()
-        {
-#pragma warning disable xUnit2017 // Do not use Contains() to check if a value exists in a collection
-            Assert.NotNull(_item);
-            Assert.True(_collection.Contains(_item));
-            _item.MutableProperty = "b";
-            // This will fail, because the Name property has been modified GetHashCode is working on.
-            // Although this is a bug in the implementation of GetHashCode I as a user of xUnit expect identical behavior for identically named functionality.
-            // Even further the analyzer warning xUnit2017 suggests that using xUnit.Assert.Contains is preferable and so implicitly says the behavior is equivalent, which it is not.
-            Assert.True(_collection.Contains(_item)); 
-#pragma warning restore xUnit2017 // Do not use Contains() to check if a value exists in a collection
         }
     }
 }

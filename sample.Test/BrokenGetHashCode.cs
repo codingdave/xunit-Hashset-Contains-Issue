@@ -1,8 +1,8 @@
 ﻿namespace sample.Test
 {
-    public class ClassWithBrokenGetHashCode
+    public class BrokenGetHashCode
     {
-        public ClassWithBrokenGetHashCode(string s) => MutableProperty = s;
+        public BrokenGetHashCode(string s) => MutableProperty = s;
 
         public string MutableProperty { get; set; }
 
