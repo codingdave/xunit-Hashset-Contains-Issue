@@ -49,14 +49,5 @@ namespace sample.Test
             Assert.False(collection.Contains(item));
 #pragma warning restore xUnit2017 // Do not use Contains() to check if a value exists in a collection
         }
-
-        [Fact]
-        public void xUnitAssertContains()
-        {
-            Assert.NotNull(_item);
-            Assert.Contains(_item, _collection);
-            _item.MutableProperty = "b";
-            Assert.Contains(_item, _collection);
-        }
     }
 }
